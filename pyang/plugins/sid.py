@@ -11,7 +11,21 @@ import re
 import os
 
 from pyang import plugin
+from pyang import error
 from collections import OrderedDict
+
+# for python 2.7 compatibility.
+try:
+    FileNotFoundError
+except NameError:
+    #py2
+    FileNotFoundError = IOError
+
+try:
+    JsonDecoderError = json.decoder.JSONDecodeError
+except AttributeError:
+    JsonDecoderError = ValueError
+
 
 def pyang_plugin_init():
     plugin.register_plugin(SidPlugin())
@@ -43,6 +57,7 @@ class SidPlugin(plugin.PyangPlugin):
                                  action="store_true",
                                  dest="list_sid",
                                  help="Print the list of SID."),
+
             optparse.make_option("--sid-registration-info",
                                  action="store_true",
                                  dest="sid_registration_info",
@@ -80,8 +95,21 @@ class SidPlugin(plugin.PyangPlugin):
             return
 
         if ctx.errors != []:
-            sys.stderr.write("Invalid YANG module\n")
-            return
+            fatal_errors = 0
+            for (epos, etag, eargs) in ctx.errors:
+                elevel = error.err_level(etag)
+                if error.is_warning(elevel):
+                    kind = "warning"
+                else:
+                    kind = "error"
+                    fatal_errors += 1
+                sys.stderr.write(str(epos) + ': %s: ' % kind + \
+                                 error.err_to_str(etag, eargs) + '\n')
+
+            if fatal_errors > 0:
+                sys.stderr.write("Invalid YANG module, .sid file processing aborted.\n")
+                return
+
 
         sid_file = SidFile()
 
@@ -124,7 +152,7 @@ class SidPlugin(plugin.PyangPlugin):
         except FileNotFoundError as e:
             sys.stderr.write("ERROR, file '%s' not found\n" % e.filename)
             sys.exit(1)
-        except json.decoder.JSONDecodeError as e:
+        except JsonDecoderError as e:
             sys.stderr.write("ERROR in '%s', line %d, column %d, %s\n" % (sid_file.input_file_name, e.lineno, e.colno, e.msg))
             sys.exit(1)
 
@@ -411,13 +439,13 @@ class SidFile:
             for key in item:
                 if key == 'namespace':
                     namespace_absent = False
-                    if type(item[key]) != str or not re.match(r'module$|identity$|feature$|data$', item[key]):
+                    if (type(item[key]) != str and type(item[key]) != unicode) or not re.match(r'module$|identity$|feature$|data$', item[key]):
                         raise SidFileError("invalid 'namespace' value '%s'." % item[key])
                     continue
 
                 elif key == 'identifier':
                     identifier_absent = False
-                    if type(item[key]) != str:
+                    if (type(item[key]) != str and type(item[key]) != unicode):
                         raise SidFileError("invalid 'identifier' value '%s'." % item[key])
                     continue
 
