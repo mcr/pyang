@@ -772,11 +772,11 @@ class SidFile:
 
         for item in self.content['items']:
             if 'type' in item:
-                if item['type'] == 'Module':
+                if item['type'] == 'module':
                     item['namespace'] = 'module'
                     item['identifier'] = item['label']
 
-                elif item['type'] == 'Submodule':
+                elif item['type'] == 'submodule':
                     item['namespace'] = 'module'
                     item['identifier'] = item['label']
 
