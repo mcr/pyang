@@ -511,7 +511,11 @@ class SidFile:
         self.merge_item('module', self.module_name)
 
         for name in module.i_ctx.modules:
+            arg = module.i_ctx.modules[name].arg
+
             if module.i_ctx.modules[name].keyword == 'submodule':
+                self.merge_item('submodule', module.i_ctx.modules[name].arg)
+            if module.i_ctx.modules[name].keyword == 'module':
                 self.merge_item('module', module.i_ctx.modules[name].arg)
 
         for feature in module.i_features:
@@ -540,6 +544,10 @@ class SidFile:
 
         for identity in module.i_identities:
                 self.merge_item('identity', identity)
+
+        for gname in module.i_groupings:
+            g = module.i_groupings[gname]
+            self.collect_inner_data_nodes(g.i_children)
 
         for substmt in module.substmts:
             if substmt.keyword == 'augment':
