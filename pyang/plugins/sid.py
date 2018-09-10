@@ -614,17 +614,24 @@ class SidFile:
 
     def merge_item(self, namespace, identifier):
         for item in self.content['items']:
-            if (namespace == item['namespace'] and identifier == item['identifier']):
+            if ('namespace' in item and namespace == item['namespace'] and identifier == item['identifier']):
                 item['status'] = 'o' # Item already assigned
                 return
         self.content['items'].append(OrderedDict([('namespace', namespace), ('identifier', identifier), ('sid', -1), ('status', 'n')]))
         self.is_consistent = False
 
+    def cmp_items(item):
+        if ('namespace' in item):
+            return item['namespace']
+        else:
+            return '0'
+
+
     ########################################################
     # Sort the items list by 'namespace' and 'identifier'
     def sort_items(self):
         self.content['items'].sort(key=lambda item:item['identifier'])
-        self.content['items'].sort(key=lambda item:item['namespace'], reverse=True)
+        self.content['items'].sort(key=lambda item:cmp_items(item), reverse=True)
 
     ########################################################
     # Identifier assignment
