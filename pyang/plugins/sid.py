@@ -431,11 +431,11 @@ class SidFile:
 
 
     def validate_items(self, items):
-        namespace_absent = True
-        identifier_absent  = True
-        sid_absent  = True
-
         for item in items:
+            namespace_absent = True
+            identifier_absent  = True
+            sid_absent  = True
+
             for key in item:
                 if key == 'namespace':
                     namespace_absent = False
@@ -457,14 +457,14 @@ class SidFile:
 
                 raise SidFileError("invalid key '%s'." % key)
 
-        if namespace_absent:
-            raise SidFileError("mandatory field 'entry-point' not present")
+            if namespace_absent:
+                item['namespace'] = 'data'
 
-        if identifier_absent:
-            raise SidFileError("mandatory field 'entry-point' not present")
+            if identifier_absent:
+                raise SidFileError("mandatory field 'entry-point' not present")
 
-        if sid_absent:
-            raise SidFileError("mandatory field 'entry-point' not present")
+            if sid_absent:
+                raise SidFileError("mandatory field 'entry-point' not present")
 
     ########################################################
     # Verify if each range defined in the .sid file is distinct
