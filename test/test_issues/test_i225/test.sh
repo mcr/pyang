@@ -25,7 +25,7 @@ trap setup_failed ERR
 [ -d .test-env ] || \
     virtualenv --system-site-packages --always-copy .test-env
 # activate it
-source .test-env/bin/activate
+. .test-env/bin/activate
 # Install pytest
 pip install pytest
 # Build pyang from source and install it using pip

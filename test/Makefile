@@ -30,7 +30,8 @@ python3_test: python3/python
 
 selftest:
 	@echo "selftest... " | tr -d '\012'; \
-		./selftest.py || exit 1; echo "ok";
+		PYTHONPATH=..:$$PYTHONPATH \
+		PATH=../bin:$$PATH ./selftest.py || exit 1; echo "ok";
 
 mtest:
 	@echo "validate all modules...";				\

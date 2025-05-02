@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 
-# check that some internal data structures are conistent
+# check that some internal data structures are consistent
 
 import sys
 import glob
 import subprocess
+
+sys.path.append('../pyang');
 
 from pyang import error
 from pyang import grammar
